@@ -1,0 +1,50 @@
+name: 自动提交
+
+on:
+  push:
+    branches:
+      - test
+      
+  schedule:
+  - cron: "0 */6 * * *" # See https://crontab.guru/#0_7,9,11_*_*_1,3
+
+jobs:
+  auto_commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 设置 Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: 调试 
+        run: echo "::debug::Ref = ${{github.ref}}"
+      - uses: actions/checkout@v2      
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: 修改最后更新时间
+        run: |
+          d=`date '+%Y-%m-%dT%H:%M:%SZ'`
+          echo $d > LAST_UPDATED
+          echo $d > README.md
+          
+      - name: 提交更改
+        run: |
+          git config --local user.email "${{ secrets.EMAIL }}"
+          git config --local user.name "FLaXCF"
+          git add -A
+          
+          current_date=$(date '+%Y-%m-%d')
+          current_day=$(date '+%A')
+          current_hour=$(date '+%H:%M:%S')
+          current_year=$(date '+%Y')
+          
+          git commit -m "FELI 提交于: ${current_day}, ${current_date} ${current_hour} 在 ${current_year} 年"
+          
+      - name: GitHub 推送
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          directory: "."
+          github_token: ${{ secrets.ACCESS_TOKEN }}
