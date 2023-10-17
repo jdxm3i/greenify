@@ -26,9 +26,9 @@ jobs:
 
       - name: 修改最后更新时间
         run: |
-          d=`最后一次提交: '+%Y-%m-%dT%H:%M:%SZ'`
+          d=`date '+%Y-%m-%dT%H:%M:%SZ'`
           echo $d > LAST_UPDATED
-          echo $d > README.md
+          echo "最后一次提交：${d}" > README.md
           
       - name: 提交更改
         run: |
